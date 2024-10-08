@@ -2,10 +2,9 @@ from sqlalchemy import Integer, String, Date, ForeignKey
 from app.database import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-class Room(Base):
-    __tablename__='room'
+class Departments(Base):
+    __tablename__='departments'
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    root_type: Mapped[str]
-    status: Mapped[str]
-    price_for_night: Mapped[int]
+    departament_name: Mapped[str]
+    location: Mapped[str]

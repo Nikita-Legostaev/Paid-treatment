@@ -2,11 +2,10 @@ from sqlalchemy import Integer, String, Date, ForeignKey
 from app.database import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-class Staff(Base):
-    __tablename__='staff'
+class Services(Base):
+    __tablename__='services'
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    full_name: Mapped[str]
-    position: Mapped[str]
-    contact: Mapped[str]
-    work_schedule: Mapped[str]
+    service_name: Mapped[str]
+    description: Mapped[str]
+    price: Mapped[float]

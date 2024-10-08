@@ -12,12 +12,11 @@ sys.path.insert(0, dirname(dirname(dirname(abspath(__file__)))))
 
 from app.config import settings
 from app.database import Base
-from app.models.booking.models import Booking
-from app.models.client.models import Client
-from app.models.group_request.models import Group_request
-from app.models.room.models import Room
-from app.models.room_occupancy.models import Room_occupancy
-from app.models.staff.models import Staff
+from app.models.appointments.models import Appointments
+from app.models.departments.models import Departments
+from app.models.doctors.models import Doctors
+from app.models.patients.models import Patients
+from app.models.services.models import Services
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
