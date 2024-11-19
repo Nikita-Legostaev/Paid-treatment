@@ -5,7 +5,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 class Services(Base):
     __tablename__='services'
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     service_name: Mapped[str]
     description: Mapped[str]
     price: Mapped[float]

@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="margin: 20px;">
+    <h2>Список врачей</h2>
+    
+    <!-- Панель управления для выбора диапазона -->
+    <div style="margin-bottom: 20px;">
+        <label>Показать с:</label>
+        <input type="number" id="offset" value="0" min="0" style="width: 80px; margin-right: 10px;">
+        <label>Количество на странице:</label>
+        <input type="number" id="limit" value="10" min="1" style="width: 80px; margin-right: 20px;">
+        <button onclick="loadDoctors()" 
+                style="padding: 5px 15px; background-color: #4CAF50; color: white; border: none; cursor: pointer;">
+            Применить
+        </button>
+    </div>
+
+    <!-- Кнопка для добавления нового врача -->
+    <button 
+        onclick="openAddModal()" 
+        style="margin-bottom: 20px; padding: 10px 20px; background-color: #4CAF50; color: white; border: none; cursor: pointer;">
+        Добавить врача
+    </button>
+
+    <!-- Таблица врачей -->
+    <table id="doctorsTable" style="width: 100%; border-collapse: collapse; text-align: left; font-family: Arial, sans-serif;">
+        <thead>
+            <tr style="background-color: #f4f4f4; border-bottom: 2px solid #ddd;">
+                <th style="padding: 10px; border: 1px solid #ddd;">Фамилия</th>
+                <th style="padding: 10px; border: 1px solid #ddd;">Имя</th>
+                <th style="padding: 10px; border: 1px solid #ddd;">Специализация</th>
+                <th style="padding: 10px; border: 1px solid #ddd;">Контактный телефон</th>
+                <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Здесь будет отображаться список врачей -->
+        </tbody>
+    </table>
+
+    <!-- Модальное окно для добавления врача -->
+    <div id="addModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid #ddd; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);">
+        <h3>Добавить нового врача</h3>
+        <form id="addForm">
+            <label>Имя:</label>
+            <input type="text" id="addFirstName" style="width: 100%; margin-bottom: 10px;">
+            <label>Фамилия:</label>
+            <input type="text" id="addLastName" style="width: 100%; margin-bottom: 10px;">
+            <label>Специализация:</label>
+            <input type="text" id="addSpecialization" style="width: 100%; margin-bottom: 10px;">
+            <label>Контактный телефон:</label>
+            <input type="text" id="addContactPhone" style="width: 100%; margin-bottom: 20px;">
+            <button type="button" onclick="addDoctor()" style="padding: 10px 20px; background-color: #4CAF50; color: white; border: none; cursor: pointer;">Сохранить</button>
+            <button type="button" onclick="closeAddModal()" style="padding: 10px 20px; margin-left: 10px; background-color: #f44336; color: white; border: none; cursor: pointer;">Отмена</button>
+        </form>
+    </div>
+
+    <!-- Модальное окно для редактирования данных врача -->
+    <div id="editModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid #ddd; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);">
+        <h3>Изменить данные врача</h3>
+        <form id="editForm">
+            <input type="hidden" id="editDoctorId">
+            <label>Имя:</label>
+            <input type="text" id="editFirstName" style="width: 100%; margin-bottom: 10px;">
+            <label>Фамилия:</label>
+            <input type="text" id="editLastName" style="width: 100%; margin-bottom: 10px;">
+            <label>Специализация:</label>
+            <input type="text" id="editSpecialization" style="width: 100%; margin-bottom: 10px;">
+            <label>Контактный телефон:</label>
+            <input type="text" id="editContactPhone" style="width: 100%; margin-bottom: 20px;">
+            <button type="button" onclick="updateDoctor()" style="padding: 10px 20px; background-color: #4CAF50; color: white; border: none; cursor: pointer;">Сохранить</button>
+            <button type="button" onclick="closeEditModal()" style="padding: 10px 20px; margin-left: 10px; background-color: #f44336; color: white; border: none; cursor: pointer;">Отмена</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Функция для загрузки врачей с учетом offset и limit
+    async function loadDoctors() {
+        const offset = document.getElementById('offset').value;
+        const limit = document.getElementById('limit').value;
+        
+        try {
+            const response = await fetch(`/doctors/all?offset=${offset}&limit=${limit}`);
+            const doctors = await response.json();
+            const tableBody = document.querySelector('#doctorsTable tbody');
+            tableBody.innerHTML = ''; // Очистить текущую таблицу
+
+            if (doctors.length > 0) {
+                doctors.forEach(doctor => {
+                    const row = document.createElement('tr');
+                    row.id = `doctor-row-${doctor.id}`;
+                    row.innerHTML = `
+                        <td style="padding: 10px; border: 1px solid #ddd;">${doctor.last_name}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">${doctor.first_name}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">${doctor.specialization}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">${doctor.contact_phone}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">
+                            <button 
+                                style="margin-right: 5px; padding: 5px 10px; background-color: #4CAF50; color: white; border: none; cursor: pointer;"
+                                onclick="openEditModal('${doctor.id}', '${doctor.first_name}', '${doctor.last_name}', '${doctor.specialization}', '${doctor.contact_phone}')">
+                                Изменить
+                            </button>
+                            <button 
+                                style="padding: 5px 10px; background-color: #f44336; color: white; border: none; cursor: pointer;" 
+                                onclick="deleteDoctor('${doctor.id}')">
+                                Удалить
+                            </button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            } else {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="5" style="padding: 10px; text-align: center; color: #666;">Нет данных для отображения</td>`;
+                tableBody.appendChild(row);
+            }
+        } catch (error) {
+            console.error('Ошибка загрузки врачей:', error);
+            alert('Ошибка при загрузке данных');
+        }
+    }
+
+    // Вызов загрузки врачей при старте страницы
+    window.onload = loadDoctors;
+
+    // Функции для добавления врача
+    function openAddModal() {
+        document.getElementById('addModal').style.display = 'block';
+    }
+
+    function closeAddModal() {
+        document.getElementById('addModal').style.display = 'none';
+    }
+
+    async function addDoctor() {
+        const firstName = document.getElementById('addFirstName').value;
+        const lastName = document.getElementById('addLastName').value;
+        const specialization = document.getElementById('addSpecialization').value;
+        const contactPhone = document.getElementById('addContactPhone').value;
+
+        const data = { first_name: firstName, last_name: lastName, specialization, contact_phone: contactPhone };
+
+        try {
+            const response = await fetch('/doctors/add_doctors', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
+
+            if (response.ok) {
+                alert('Врач успешно добавлен');
+                loadDoctors(); // Перезагружаем список врачей
+                closeAddModal(); // Закрываем окно
+            } else {
+                alert('Ошибка при добавлении врача');
+            }
+        } catch (error) {
+            console.error('Ошибка добавления врача:', error);
+            alert('Ошибка при добавлении врача');
+        }
+    }
+
+    // Функции для редактирования врача
+    function openEditModal(id, firstName, lastName, specialization, contactPhone) {
+        document.getElementById('editDoctorId').value = id;
+        document.getElementById('editFirstName').value = firstName;
+        document.getElementById('editLastName').value = lastName;
+        document.getElementById('editSpecialization').value = specialization;
+        document.getElementById('editContactPhone').value = contactPhone;
+        document.getElementById('editModal').style.display = 'block';
+    }
+
+    function closeEditModal() {
+        document.getElementById('editModal').style.display = 'none';
+    }
+
+    async function updateDoctor() {
+        const id = document.getElementById('editDoctorId').value;
+        const firstName = document.getElementById('editFirstName').value;
+        const lastName = document.getElementById('editLastName').value;
+        const specialization = document.getElementById('editSpecialization').value;
+        const contactPhone = document.getElementById('editContactPhone').value;
+
+        const data = { first_name: firstName, last_name: lastName, specialization, contact_phone: contactPhone };
+
+        try {
+            const response = await fetch(`/doctors/edit/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
+
+            if (response.ok) {
+                alert('Данные врача обновлены');
+                loadDoctors(); // Перезагружаем список врачей
+                closeEditModal(); // Закрываем окно
+            } else {
+                alert('Ошибка при обновлении врача');
+            }
+        } catch (error) {
+            console.error('Ошибка обновления врача:', error);
+            alert('Ошибка при обновлении врача');
+        }
+    }
+
+    // Функция для удаления врача
+    async function deleteDoctor(id) {
+        if (confirm('Вы уверены, что хотите удалить этого врача?')) {
+            try {
+                const response = await fetch(`/doctors/remove/${id}`, {
+                    method: 'DELETE',
+                });
+
+                if (response.ok) {
+                    alert('Врач успешно удалён');
+                    loadDoctors(); // Перезагружаем список врачей
+                } else {
+                    alert('Ошибка при удалении врача');
+                }
+            } catch (error) {
+                console.error('Ошибка удаления врача:', error);
+                alert('Ошибка при удалении врача');
+            }
+        }
+    }
+</script>
+{% endblock %}

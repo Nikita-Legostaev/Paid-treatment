@@ -5,7 +5,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 class Appointments(Base):
     __tablename__='appointments'
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     patient_id: Mapped[int] = mapped_column(ForeignKey('patients.id'))
     doctor_id: Mapped[int] = mapped_column(ForeignKey('doctors.id'))
     departament_id: Mapped[int] = mapped_column(ForeignKey('departments.id'))

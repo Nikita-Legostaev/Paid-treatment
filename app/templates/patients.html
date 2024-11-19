@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="margin: 20px;">
+    <h2>Список пациентов</h2>
+    
+    <!-- Панель управления для выбора диапазона -->
+    <div style="margin-bottom: 20px;">
+        <label>Показать с:</label>
+        <input type="number" id="offset" value="0" min="0" style="width: 80px; margin-right: 10px;">
+        <label>Количество на странице:</label>
+        <input type="number" id="limit" value="10" min="1" style="width: 80px; margin-right: 20px;">
+        <button onclick="loadPatients()" 
+                style="padding: 5px 15px; background-color: #4CAF50; color: white; border: none; cursor: pointer;">
+            Применить
+        </button>
+    </div>
+
+    <!-- Кнопка для добавления нового пациента -->
+    <button 
+        onclick="openAddModal()" 
+        style="margin-bottom: 20px; padding: 10px 20px; background-color: #4CAF50; color: white; border: none; cursor: pointer;">
+        Добавить пациента
+    </button>
+
+    <!-- Таблица пациентов -->
+    <table id="patientsTable" style="width: 100%; border-collapse: collapse; text-align: left; font-family: Arial, sans-serif;">
+        <thead>
+            <tr style="background-color: #f4f4f4; border-bottom: 2px solid #ddd;">
+                <th style="padding: 10px; border: 1px solid #ddd;">Имя</th>
+                <th style="padding: 10px; border: 1px solid #ddd;">Фамилия</th>
+                <th style="padding: 10px; border: 1px solid #ddd;">Дата рождения</th>
+                <th style="padding: 10px; border: 1px solid #ddd;">Пол</th>
+                <th style="padding: 10px; border: 1px solid #ddd;">Телефон</th>
+                <th style="padding: 10px; border: 1px solid #ddd;">Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Здесь будет отображаться список пациентов -->
+        </tbody>
+    </table>
+
+    <!-- Модальное окно для добавления пациента -->
+    <div id="addModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid #ddd; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);">
+        <h3>Добавить нового пациента</h3>
+        <form id="addForm">
+            <label>Имя:</label>
+            <input type="text" id="addFirstName" style="width: 100%; margin-bottom: 10px;">
+            <label>Фамилия:</label>
+            <input type="text" id="addLastName" style="width: 100%; margin-bottom: 10px;">
+            <label>Дата рождения:</label>
+            <input type="date" id="addBirthDate" style="width: 100%; margin-bottom: 10px;">
+            <label>Пол:</label>
+            <select id="addGender" style="width: 100%; margin-bottom: 10px;">
+                <option value="Мужской">Мужской</option>
+                <option value="Женский">Женский</option>
+            </select>
+            <label>Телефон:</label>
+            <input type="text" id="addContactPhone" style="width: 100%; margin-bottom: 10px;">
+            <button type="button" onclick="addPatient()" style="padding: 10px 20px; background-color: #4CAF50; color: white; border: none; cursor: pointer;">Сохранить</button>
+            <button type="button" onclick="closeAddModal()" style="padding: 10px 20px; margin-left: 10px; background-color: #f44336; color: white; border: none; cursor: pointer;">Отмена</button>
+        </form>
+    </div>
+
+    <!-- Модальное окно для редактирования пациента -->
+    <div id="editModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid #ddd; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);">
+        <h3>Изменить данные пациента</h3>
+        <form id="editForm">
+            <input type="hidden" id="editPatientId">
+            <label>Имя:</label>
+            <input type="text" id="editFirstName" style="width: 100%; margin-bottom: 10px;">
+            <label>Фамилия:</label>
+            <input type="text" id="editLastName" style="width: 100%; margin-bottom: 10px;">
+            <label>Дата рождения:</label>
+            <input type="date" id="editBirthDate" style="width: 100%; margin-bottom: 10px;">
+            <label>Пол:</label>
+            <select id="editGender" style="width: 100%; margin-bottom: 10px;">
+                <option value="Мужской">Мужской</option>
+                <option value="Женский">Женский</option>
+            </select>
+            <label>Телефон:</label>
+            <input type="text" id="editContactPhone" style="width: 100%; margin-bottom: 10px;">
+            <button type="button" onclick="updatePatient()" style="padding: 10px 20px; background-color: #4CAF50; color: white; border: none; cursor: pointer;">Сохранить</button>
+            <button type="button" onclick="closeEditModal()" style="padding: 10px 20px; margin-left: 10px; background-color: #f44336; color: white; border: none; cursor: pointer;">Отмена</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Функция для загрузки пациентов с учетом offset и limit
+    async function loadPatients() {
+        const offset = document.getElementById('offset').value;
+        const limit = document.getElementById('limit').value;
+        
+        try {
+            const response = await fetch(`/patients/all?offset=${offset}&limit=${limit}`);
+            const patients = await response.json();
+            const tableBody = document.querySelector('#patientsTable tbody');
+            tableBody.innerHTML = ''; // Очистить текущую таблицу
+
+            if (patients.length > 0) {
+                patients.forEach(patient => {
+                    const row = document.createElement('tr');
+                    row.id = `patient-row-${patient.id}`;
+                    row.innerHTML = `
+                        <td style="padding: 10px; border: 1px solid #ddd;">${patient.first_name}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">${patient.last_name}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">${patient.birth_date}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">${patient.gender}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">${patient.contact_phone}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">
+                            <button 
+                                style="margin-right: 5px; padding: 5px 10px; background-color: #4CAF50; color: white; border: none; cursor: pointer;"
+                                onclick="openEditModal('${patient.id}', '${patient.first_name}', '${patient.last_name}', '${patient.birth_date}', '${patient.gender}', '${patient.contact_phone}')">
+                                Изменить
+                            </button>
+                            <button 
+                                style="padding: 5px 10px; background-color: #f44336; color: white; border: none; cursor: pointer;" 
+                                onclick="deletePatient('${patient.id}')">
+                                Удалить
+                            </button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            } else {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="6" style="padding: 10px; text-align: center; color: #666;">Нет данных для отображения</td>`;
+                tableBody.appendChild(row);
+            }
+        } catch (error) {
+            console.error('Ошибка загрузки пациентов:', error);
+            alert('Ошибка при загрузке данных');
+        }
+    }
+
+    // Вызов загрузки пациентов при старте страницы
+    window.onload = loadPatients;
+
+    // Функции для добавления пациента
+    function openAddModal() {
+        document.getElementById('addModal').style.display = 'block';
+    }
+
+    function closeAddModal() {
+        document.getElementById('addModal').style.display = 'none';
+    }
+
+    async function addPatient() {
+        const firstName = document.getElementById('addFirstName').value;
+        const lastName = document.getElementById('addLastName').value;
+        const birthDate = document.getElementById('addBirthDate').value;
+        const gender = document.getElementById('addGender').value;
+        const contactPhone = document.getElementById('addContactPhone').value;
+
+        const data = { first_name: firstName, last_name: lastName, birth_date: birthDate, gender, contact_phone: contactPhone };
+
+        try {
+            const response = await fetch('/patients/add_patients', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
+
+            if (response.ok) {
+                alert('Пациент успешно добавлен');
+                loadPatients(); // Перезагружаем список пациентов
+                closeAddModal(); // Закрываем окно
+            } else {
+                alert('Ошибка при добавлении пациента');
+            }
+        } catch (error) {
+            console.error('Ошибка добавления пациента:', error);
+            alert('Ошибка при добавлении пациента');
+        }
+    }
+
+    // Функции для редактирования пациента
+    function openEditModal(id, firstName, lastName, birthDate, gender, contactPhone) {
+        document.getElementById('editPatientId').value = id;
+        document.getElementById('editFirstName').value = firstName;
+        document.getElementById('editLastName').value = lastName;
+        document.getElementById('editBirthDate').value = birthDate;
+        document.getElementById('editGender').value = gender;
+        document.getElementById('editContactPhone').value = contactPhone;
+        document.getElementById('editModal').style.display = 'block';
+    }
+
+    function closeEditModal() {
+        document.getElementById('editModal').style.display = 'none';
+    }
+
+    async function updatePatient() {
+        const id = document.getElementById('editPatientId').value;
+        const firstName = document.getElementById('editFirstName').value;
+        const lastName = document.getElementById('editLastName').value;
+        const birthDate = document.getElementById('editBirthDate').value;
+        const gender = document.getElementById('editGender').value;
+        const contactPhone = document.getElementById('editContactPhone').value;
+
+        const data = { first_name: firstName, last_name: lastName, birth_date: birthDate, gender, contact_phone: contactPhone };
+
+        try {
+            const response = await fetch(`/patients/edit/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
+
+            if (response.ok) {
+                alert('Данные пациента обновлены');
+                loadPatients(); // Перезагружаем список пациентов
+                closeEditModal(); // Закрываем окно
+            } else {
+                alert('Ошибка при обновлении пациента');
+            }
+        } catch (error) {
+            console.error('Ошибка обновления пациента:', error);
+            alert('Ошибка при обновлении пациента');
+        }
+    }
+
+    // Функция для удаления пациента
+    async function deletePatient(id) {
+        if (confirm('Вы уверены, что хотите удалить этого пациента?')) {
+            try {
+                const response = await fetch(`/patients/remove/${id}`, {
+                    method: 'DELETE',
+                });
+
+                if (response.ok) {
+                    alert('Пациент успешно удален');
+                    loadPatients(); // Перезагружаем список пациентов
+                } else {
+                    alert('Ошибка при удалении пациента');
+                }
+            } catch (error) {
+                console.error('Ошибка удаления пациента:', error);
+                alert('Ошибка при удалении пациента');
+            }
+        }
+    }
+</script>
+{% endblock %}
