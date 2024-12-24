@@ -140,6 +140,25 @@
         const serviceId = document.getElementById('addServiceId').value;
         const appointmentDate = document.getElementById('addAppointmentDate').value;
         const paymentStatus = document.getElementById('addPaymentStatus').value;
+        if (!patientId || !doctorId || !departamentId || !serviceId || !appointmentDate || !paymentStatus) {
+        alert('Пожалуйста, заполните все поля');
+        return;
+    }
+
+    // Проверка, что дата назначения корректная
+    const appointmentDateObj = new Date(appointmentDate);
+    const currentDate = new Date();
+    if (appointmentDateObj < currentDate) {
+        alert('Дата назначения не может быть в прошлом');
+        return;
+    }
+
+    // Проверка формата телефонного номера (если есть поле для телефона, например)
+    const phonePattern = /^[0-9]{10}$/; // Пример для номера в 10 цифр
+    if (!phonePattern.test(document.getElementById('addContactPhone').value)) {
+        alert('Некорректный номер телефона');
+        return;
+    }
 
         const data = { patient_id: patientId, doctor_id: doctorId, departament_id: departamentId, service_id: serviceId, appointment_date: appointmentDate, payment_status: paymentStatus };
 
@@ -188,11 +207,31 @@
         const appointmentDate = document.getElementById('editAppointmentDate').value;
         const paymentStatus = document.getElementById('editPaymentStatus').value;
 
+        if (!patientId || !doctorId || !departamentId || !serviceId || !appointmentDate || !paymentStatus) {
+        alert('Пожалуйста, заполните все поля');
+        return;
+    }
+
+    // Проверка, что дата назначения корректная
+    const appointmentDateObj = new Date(appointmentDate);
+    const currentDate = new Date();
+    if (appointmentDateObj < currentDate) {
+        alert('Дата назначения не может быть в прошлом');
+        return;
+    }
+
+    // Проверка формата телефонного номера (если есть поле для телефона, например)
+    const phonePattern = /^[0-9]{10}$/; // Пример для номера в 10 цифр
+    if (!phonePattern.test(document.getElementById('addContactPhone').value)) {
+        alert('Некорректный номер телефона');
+        return;
+    }
+
         const data = { patient_id: patientId, doctor_id: doctorId, departament_id: departamentId, service_id: serviceId, appointment_date: appointmentDate, payment_status: paymentStatus };
 
         try {
-            const response = await fetch(`/appointments/update_appointments/${id}`, {
-                method: 'PUT',
+            const response = await fetch(`/appointments/edit/${id}`, {
+                method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data),
             });
@@ -214,7 +253,7 @@
     async function deleteAppointment(id) {
         if (confirm('Вы уверены, что хотите удалить запись?')) {
             try {
-                const response = await fetch(`/appointments/delete_appointments/${id}`, { method: 'DELETE' });
+                const response = await fetch(`/appointments/remove/${id}`, { method: 'DELETE' });
 
                 if (response.ok) {
                     alert('Запись успешно удалена');

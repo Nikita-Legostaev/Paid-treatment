@@ -127,6 +127,24 @@
         const specialization = document.getElementById('addSpecialization').value;
         const contactPhone = document.getElementById('addContactPhone').value;
 
+        if (!firstName || !lastName || !specialization || !contactPhone) {
+        alert('Пожалуйста, заполните все поля');
+        return;
+    }
+
+    // Проверка на минимальную длину имени и фамилии (например, 2 символа)
+    if (firstName.length < 2 || lastName.length < 2) {
+        alert('Имя и фамилия должны быть не менее 2 символов');
+        return;
+    }
+
+    // Проверка формата телефона (например, должно быть хотя бы 10 цифр)
+    const phonePattern = /^[0-9]{10,15}$/; // Регулярное выражение для телефона
+    if (!phonePattern.test(contactPhone)) {
+        alert('Неверный формат номера телефона. Введите только цифры (10-15 цифр)');
+        return;
+    }
+
         const data = { first_name: firstName, last_name: lastName, specialization, contact_phone: contactPhone };
 
         try {
@@ -169,6 +187,24 @@
         const lastName = document.getElementById('editLastName').value;
         const specialization = document.getElementById('editSpecialization').value;
         const contactPhone = document.getElementById('editContactPhone').value;
+
+        if (!firstName || !lastName || !specialization || !contactPhone) {
+        alert('Пожалуйста, заполните все поля');
+        return;
+    }
+
+    // Проверка на минимальную длину имени и фамилии (например, 2 символа)
+    if (firstName.length < 2 || lastName.length < 2) {
+        alert('Имя и фамилия должны быть не менее 2 символов');
+        return;
+    }
+
+    // Проверка формата телефона (например, должно быть хотя бы 10 цифр)
+    const phonePattern = /^[0-9]{10,15}$/; // Регулярное выражение для телефона
+    if (!phonePattern.test(contactPhone)) {
+        alert('Неверный формат номера телефона. Введите только цифры (10-15 цифр)');
+        return;
+    }
 
         const data = { first_name: firstName, last_name: lastName, specialization, contact_phone: contactPhone };
 

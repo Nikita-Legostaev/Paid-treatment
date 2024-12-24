@@ -270,10 +270,32 @@
         const description = document.getElementById('addDescription').value;
         const price = document.getElementById('addPrice').value;
 
+        if (!serviceName || !description || !price) {
+        alert('Пожалуйста, заполните все поля');
+        return;
+    }
+
+    // Проверка на минимальную длину названия и описания услуги (например, 2 символа)
+    if (serviceName.length < 2) {
+        alert('Название услуги должно быть не менее 2 символов');
+        return;
+    }
+
+    if (description.length < 5) {
+        alert('Описание услуги должно быть не менее 5 символов');
+        return;
+    }
+
+    // Проверка на корректность ввода цены (должна быть числом больше нуля)
+    if (isNaN(price) || parseFloat(price) <= 0) {
+        alert('Цена должна быть положительным числом');
+        return;
+    }
+
         const data = { service_name: serviceName, description, price };
 
         try {
-            const response = await fetch('/services/create', {
+            const response = await fetch('/services/add_services', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data),
@@ -310,11 +332,33 @@
         const description = document.getElementById('editDescription').value;
         const price = document.getElementById('editPrice').value;
 
+        if (!serviceName || !description || !price) {
+        alert('Пожалуйста, заполните все поля');
+        return;
+    }
+
+    // Проверка на минимальную длину названия и описания услуги (например, 2 символа)
+    if (serviceName.length < 2) {
+        alert('Название услуги должно быть не менее 2 символов');
+        return;
+    }
+
+    if (description.length < 5) {
+        alert('Описание услуги должно быть не менее 5 символов');
+        return;
+    }
+
+    // Проверка на корректность ввода цены (должна быть числом больше нуля)
+    if (isNaN(price) || parseFloat(price) <= 0) {
+        alert('Цена должна быть положительным числом');
+        return;
+    }
+
         const data = { service_name: serviceName, description, price };
 
         try {
-            const response = await fetch(`/services/update/${id}`, {
-                method: 'PUT',
+            const response = await fetch(`/services/edit/${id}`, {
+                method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data),
             });
@@ -336,7 +380,7 @@
         const confirmation = confirm('Вы уверены, что хотите удалить эту услугу?');
         if (confirmation) {
             try {
-                const response = await fetch(`/services/delete/${id}`, {
+                const response = await fetch(`/services/remove/${id}`, {
                     method: 'DELETE',
                 });
 

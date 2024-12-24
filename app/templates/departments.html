@@ -113,6 +113,23 @@
         const departmentName = document.getElementById('addDepartmentName').value;
         const location = document.getElementById('addLocation').value;
 
+        if (!departmentName || !location) {
+        alert('Пожалуйста, заполните все поля');
+        return;
+    }
+
+    // Проверка длины имени департамента (например, минимум 3 символа)
+    if (departmentName.length < 3) {
+        alert('Имя департамента должно быть не менее 3 символов');
+        return;
+    }
+
+    // Проверка корректности местоположения (например, длина не менее 2 символов)
+    if (location.length < 2) {
+        alert('Местоположение департамента должно быть не менее 2 символов');
+        return;
+    }
+
         const data = { departament_name: departmentName, location: location };
 
         try {
@@ -151,6 +168,23 @@
         const id = document.getElementById('editDepartmentId').value;
         const departmentName = document.getElementById('editDepartmentName').value;
         const location = document.getElementById('editLocation').value;
+
+        if (!departmentName || !location) {
+        alert('Пожалуйста, заполните все поля');
+        return;
+    }
+
+    // Проверка длины имени департамента (например, минимум 3 символа)
+    if (departmentName.length < 3) {
+        alert('Имя департамента должно быть не менее 3 символов');
+        return;
+    }
+
+    // Проверка корректности местоположения (например, длина не менее 2 символов)
+    if (location.length < 2) {
+        alert('Местоположение департамента должно быть не менее 2 символов');
+        return;
+    }
 
         const data = { departament_name: departmentName, location: location };
 
