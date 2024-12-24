@@ -6,5 +6,5 @@ from app.database import async_session
 from sqlalchemy.exc import SQLAlchemyError
 
 
-class StaffDepartments(BaseRepositories):
+class RepositoryDepartments(BaseRepositories):
     model = Departments

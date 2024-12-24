@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import TypeAdapter
+from datetime import date
 
 from app.models.patients.repositpries import PatientsRepositories
 from app.models.patients.shemas import SNewPatients
@@ -51,3 +52,26 @@ async def update_patients(
         raise HTTPException(status_code=404, detail="Не найден")
     await PatientsRepositories.update(id=patients_id, **SNewPatients.model_dump())
     return {"detail": "Успешно изменёно"}
+
+@router.get("/search/")
+async def search_products(
+    first_name: str | None = None,
+    last_name: str | None = None,
+    birth_date: date | None = None,
+    gender: str | None = None,
+    contact_phone: str | None = None,
+    offset: int = 0, limit: int = 10,
+    ):
+    filter_params = {key: value for key, value in locals().items() if value is not None and key not in ['offset', 'limit']}
+    
+    products = await PatientsRepositories.get_all(**filter_params)
+    
+    if not products:
+        raise HTTPException(status_code=404, detail="Пациент не найден")
+    
+    return products[offset:offset + limit]
+
+@router.get("/count")
+async def count_stock():
+    count = await PatientsRepositories.count()
+    return {"count": count}

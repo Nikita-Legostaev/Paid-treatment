@@ -5,24 +5,70 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background-color: #ff5722; /* Оранжевый цвет */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            transition: background-color 0.3s;
+            font-size: 16px;
+            text-decoration: none; /* Убираем подчеркивание текста */
+        }
+
+        .btn:hover {
+            background-color: #e64a19; /* Темный оранжевый при наведении */
+        }
+
+        .btn:active {
+            background-color: #d84315; /* Еще темнее при нажатии */
+        }
+    </style>
 </head>
 <body>
-    <button 
-    onclick="window.location.href='http://127.0.0.1:8000/pages/doctors'" 
-    style="padding: 10px 20px; background-color: #4CAF50; color: white; border: none; cursor: pointer;">
-    Перейти к списку докторов
-    </button>
-    <button 
-    onclick="window.location.href='http://127.0.0.1:8000/pages/patients'" 
-    style="padding: 10px 20px; background-color: #4CAF50; color: white; border: none; cursor: pointer;">
-    Перейти к списку пациентов
-    </button>
-    <button 
-    onclick="window.location.href='http://127.0.0.1:8000/pages/services'" 
-    style="padding: 10px 20px; background-color: #4CAF50; color: white; border: none; cursor: pointer;">
-    Перейти к списку сервисов
-    </button>
+
+    <div class="button-container">
+        <a href="http://127.0.0.1:8000/pages/doctors" class="btn">
+            Перейти к списку докторов
+        </a>
+        <a href="http://127.0.0.1:8000/pages/patients" class="btn">
+            Перейти к списку пациентов
+        </a>
+        <a href="http://127.0.0.1:8000/pages/services" class="btn">
+            Перейти к списку сервисов
+        </a>
+        <a href="http://127.0.0.1:8000/pages/appointments" class="btn">
+            Перейти к списку записей
+        </a>
+        <a href="http://127.0.0.1:8000/pages/departments" class="btn">
+            Перейти к списку отделов
+        </a>
+        <a href="http://127.0.0.1:8000/pages/count" class="btn">
+            Перейти к статистики
+        </a>
+    </div>
+
     {% block content %}{% endblock %}
-   
 </body>
 </html>

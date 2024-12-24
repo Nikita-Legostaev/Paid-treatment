@@ -49,3 +49,8 @@ async def update_services(
         raise HTTPException(status_code=404, detail="Не найден")
     await ServicesRepositories.update(id=services_id, **SNewServices.model_dump())
     return {"detail": "Успешно изменёно"}
+
+@router.get("/count")
+async def count_stock():
+    count = await ServicesRepositories.count()
+    return {"count": count}

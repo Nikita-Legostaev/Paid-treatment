@@ -50,3 +50,9 @@ async def update_doctors(
         raise HTTPException(status_code=404, detail="Не найден")
     await DoctorsRepositories.update(id=doctors_id, **SNewDoctors.model_dump())
     return {"detail": "Успешно изменёно"}
+
+
+@router.get("/count")
+async def count_stock():
+    count = await DoctorsRepositories.count()
+    return {"count": count}

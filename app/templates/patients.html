@@ -1,243 +1,452 @@
+
 {% extends "base.html" %}
 {% block content %}
-<div style="margin: 20px;">
-    <h2>Список пациентов</h2>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список пациентов</title>
+    <style>
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .control-panel {
+            margin-bottom: 20px;
+        }
+        .input-field {
+            padding: 5px;
+            margin: 5px;
+            width: 150px;
+        }
+        .btn {
+            padding: 8px 16px;
+            font-size: 14px;
+            margin: 5px;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-primary {
+            background-color: #ff8c00;
+            color: white;
+        }
+        .btn-success {
+            background-color: #ff7f00;
+            color: white;
+        }
+        .btn-danger {
+            background-color: #e94f37;
+            color: white;
+        }
+        .btn:hover {
+            opacity: 0.8;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .table th, .table td {
+            padding: 8px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        .actions button {
+            margin: 0 5px;
+        }
+        .no-data {
+            text-align: center;
+            font-size: 16px;
+            color: #888;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal form {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        .modal label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .btn-primary:hover {
+    opacity: 0.8;
+}
+.control-panel {
+    margin-top: 20px;
+    text-align: center;
+    background-color: white;
+    padding: 15px;
+    border: 1px solid #ddd;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+#pageInfo {
+    margin: 0 15px;
+    font-size: 16px;
+    color: #333;
+}
+    </style>
+</head>
+<body>
     
-    <!-- Панель управления для выбора диапазона -->
-    <div style="margin-bottom: 20px;">
-        <label>Показать с:</label>
-        <input type="number" id="offset" value="0" min="0" style="width: 80px; margin-right: 10px;">
-        <label>Количество на странице:</label>
-        <input type="number" id="limit" value="10" min="1" style="width: 80px; margin-right: 20px;">
-        <button onclick="loadPatients()" 
-                style="padding: 5px 15px; background-color: #4CAF50; color: white; border: none; cursor: pointer;">
-            Применить
+    <div class="container">
+        <h2 class="header">Список пациентов</h2>
+        <form class="control-panel">
+            <label for="first_name">Имя:</label>
+            <input type="text" id="first_name" class="input-field" placeholder="Имя" />
+            
+            <label for="last_name">Фамилия:</label>
+            <input type="text" id="last_name" class="input-field" placeholder="Фамилия" />
+            
+            <label for="birth_date">Дата рождения:</label>
+            <input type="date" id="birth_date" class="input-field" placeholder="Дата рождения" />
+            
+            <label for="gender">Пол:</label>
+            <select id="gender" class="input-field">
+                <option value="">Пол</option>
+                <option value="M">Мужчина</option>
+                <option value="F">Женщина</option>
+            </select>
+            
+            <label for="contact_phone">Телефон:</label>
+            <input type="text" id="contact_phone" class="input-field" placeholder="Телефон" />
+            
+            <label for="offset">Смещение:</label>
+            <input type="number" id="offset" value="0" class="input-field" />
+            
+            <label for="limit">Лимит:</label>
+            <input type="number" id="limit" value="15" class="input-field" />
+            
+            <button type="button" onclick="searchPatients()" class="btn btn-primary">Поиск</button>
+        </form>
+
+        
+
+        <!-- Кнопка для добавления нового пациента -->
+        <button onclick="openAddModal()" class="btn btn-success">Добавить пациента</button>
+        
+
+        <!-- Таблица пациентов -->
+        <table id="patientsTable" class="table">
+            <thead>
+                <tr>
+                    <th>Фамилия</th>
+                    <th>Имя</th>
+                    <th>Дата рождения</th>
+                    <th>Пол</th>
+                    <th>Контактный телефон</th>
+                    <th class="actions">Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Здесь будет отображаться список пациентов -->
+            </tbody>
+        </table>
+        
+
+        <!-- Модальное окно для добавления пациента -->
+        <div id="addModal" class="modal">
+            <h3>Добавить нового пациента</h3>
+            <form id="addForm">
+                <label>Имя:</label>
+                <input type="text" id="addFirstName" class="input-field">
+                <label>Фамилия:</label>
+                <input type="text" id="addLastName" class="input-field">
+                <label>Дата рождения:</label>
+                <input type="date" id="addBirthDate" class="input-field">
+                <label>Пол:</label>
+                <select id="addGender" class="input-field">
+                    <option value="М">Мужской</option>
+                    <option value="Ж">Женский</option>
+                </select>
+                <label>Контактный телефон:</label>
+                <input type="text" id="addContactPhone" class="input-field">
+                <button type="button" onclick="addPatient()" class="btn btn-success">Сохранить</button>
+                <button type="button" onclick="closeAddModal()" class="btn btn-danger">Отмена</button>
+            </form>
+        </div>
+
+        <!-- Модальное окно для редактирования данных пациента -->
+        <div id="editModal" class="modal">
+            <h3>Изменить данные пациента</h3>
+            <form id="editForm">
+                <input type="hidden" id="editPatientId">
+                <label>Имя:</label>
+                <input type="text" id="editFirstName" class="input-field">
+                <label>Фамилия:</label>
+                <input type="text" id="editLastName" class="input-field">
+                <label>Дата рождения:</label>
+                <input type="date" id="editBirthDate" class="input-field">
+                <label>Пол:</label>
+                <select id="editGender" class="input-field">
+                    <option value="М">Мужской</option>
+                    <option value="Ж">Женский</option>
+                </select>
+                <label>Контактный телефон:</label>
+                <input type="text" id="editContactPhone" class="input-field">
+                <button type="button" onclick="updatePatient()" class="btn btn-success">Сохранить</button>
+                <button type="button" onclick="closeEditModal()" class="btn btn-danger">Отмена</button>
+            </form>
+        </div>
+    </div>
+    <div id="pagination" class="control-panel" style="text-align: center;">
+        <button id="prevPageBtn" onclick="changePage('prev')" class="btn btn-primary" style="padding: 8px 20px;">
+            Предыдущая страница
+        </button>
+        <span id="pageInfo" style="margin: 0 15px; font-size: 16px; color: #333;">Страница 1</span>
+        <button id="nextPageBtn" onclick="changePage('next')" class="btn btn-primary" style="padding: 8px 20px;">
+            Следующая страница
         </button>
     </div>
+    
+    <script>
+        let currentPage = 1;
+        let limit = 133;
+        let offset = 0;
+        // Функция для загрузки пациентов с учетом offset и limit
+        async function loadPatients() {
+            const offset = document.getElementById('offset').value;
+            const limit = document.getElementById('limit').value;
 
-    <!-- Кнопка для добавления нового пациента -->
-    <button 
-        onclick="openAddModal()" 
-        style="margin-bottom: 20px; padding: 10px 20px; background-color: #4CAF50; color: white; border: none; cursor: pointer;">
-        Добавить пациента
-    </button>
-
-    <!-- Таблица пациентов -->
-    <table id="patientsTable" style="width: 100%; border-collapse: collapse; text-align: left; font-family: Arial, sans-serif;">
-        <thead>
-            <tr style="background-color: #f4f4f4; border-bottom: 2px solid #ddd;">
-                <th style="padding: 10px; border: 1px solid #ddd;">Имя</th>
-                <th style="padding: 10px; border: 1px solid #ddd;">Фамилия</th>
-                <th style="padding: 10px; border: 1px solid #ddd;">Дата рождения</th>
-                <th style="padding: 10px; border: 1px solid #ddd;">Пол</th>
-                <th style="padding: 10px; border: 1px solid #ddd;">Телефон</th>
-                <th style="padding: 10px; border: 1px solid #ddd;">Действия</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Здесь будет отображаться список пациентов -->
-        </tbody>
-    </table>
-
-    <!-- Модальное окно для добавления пациента -->
-    <div id="addModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid #ddd; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);">
-        <h3>Добавить нового пациента</h3>
-        <form id="addForm">
-            <label>Имя:</label>
-            <input type="text" id="addFirstName" style="width: 100%; margin-bottom: 10px;">
-            <label>Фамилия:</label>
-            <input type="text" id="addLastName" style="width: 100%; margin-bottom: 10px;">
-            <label>Дата рождения:</label>
-            <input type="date" id="addBirthDate" style="width: 100%; margin-bottom: 10px;">
-            <label>Пол:</label>
-            <select id="addGender" style="width: 100%; margin-bottom: 10px;">
-                <option value="Мужской">Мужской</option>
-                <option value="Женский">Женский</option>
-            </select>
-            <label>Телефон:</label>
-            <input type="text" id="addContactPhone" style="width: 100%; margin-bottom: 10px;">
-            <button type="button" onclick="addPatient()" style="padding: 10px 20px; background-color: #4CAF50; color: white; border: none; cursor: pointer;">Сохранить</button>
-            <button type="button" onclick="closeAddModal()" style="padding: 10px 20px; margin-left: 10px; background-color: #f44336; color: white; border: none; cursor: pointer;">Отмена</button>
-        </form>
-    </div>
-
-    <!-- Модальное окно для редактирования пациента -->
-    <div id="editModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid #ddd; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);">
-        <h3>Изменить данные пациента</h3>
-        <form id="editForm">
-            <input type="hidden" id="editPatientId">
-            <label>Имя:</label>
-            <input type="text" id="editFirstName" style="width: 100%; margin-bottom: 10px;">
-            <label>Фамилия:</label>
-            <input type="text" id="editLastName" style="width: 100%; margin-bottom: 10px;">
-            <label>Дата рождения:</label>
-            <input type="date" id="editBirthDate" style="width: 100%; margin-bottom: 10px;">
-            <label>Пол:</label>
-            <select id="editGender" style="width: 100%; margin-bottom: 10px;">
-                <option value="Мужской">Мужской</option>
-                <option value="Женский">Женский</option>
-            </select>
-            <label>Телефон:</label>
-            <input type="text" id="editContactPhone" style="width: 100%; margin-bottom: 10px;">
-            <button type="button" onclick="updatePatient()" style="padding: 10px 20px; background-color: #4CAF50; color: white; border: none; cursor: pointer;">Сохранить</button>
-            <button type="button" onclick="closeEditModal()" style="padding: 10px 20px; margin-left: 10px; background-color: #f44336; color: white; border: none; cursor: pointer;">Отмена</button>
-        </form>
-    </div>
-</div>
-
-<script>
-    // Функция для загрузки пациентов с учетом offset и limit
-    async function loadPatients() {
-        const offset = document.getElementById('offset').value;
-        const limit = document.getElementById('limit').value;
-        
-        try {
-            const response = await fetch(`/patients/all?offset=${offset}&limit=${limit}`);
-            const patients = await response.json();
-            const tableBody = document.querySelector('#patientsTable tbody');
-            tableBody.innerHTML = ''; // Очистить текущую таблицу
-
-            if (patients.length > 0) {
-                patients.forEach(patient => {
-                    const row = document.createElement('tr');
-                    row.id = `patient-row-${patient.id}`;
-                    row.innerHTML = `
-                        <td style="padding: 10px; border: 1px solid #ddd;">${patient.first_name}</td>
-                        <td style="padding: 10px; border: 1px solid #ddd;">${patient.last_name}</td>
-                        <td style="padding: 10px; border: 1px solid #ddd;">${patient.birth_date}</td>
-                        <td style="padding: 10px; border: 1px solid #ddd;">${patient.gender}</td>
-                        <td style="padding: 10px; border: 1px solid #ddd;">${patient.contact_phone}</td>
-                        <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">
-                            <button 
-                                style="margin-right: 5px; padding: 5px 10px; background-color: #4CAF50; color: white; border: none; cursor: pointer;"
-                                onclick="openEditModal('${patient.id}', '${patient.first_name}', '${patient.last_name}', '${patient.birth_date}', '${patient.gender}', '${patient.contact_phone}')">
-                                Изменить
-                            </button>
-                            <button 
-                                style="padding: 5px 10px; background-color: #f44336; color: white; border: none; cursor: pointer;" 
-                                onclick="deletePatient('${patient.id}')">
-                                Удалить
-                            </button>
-                        </td>
-                    `;
-                    tableBody.appendChild(row);
-                });
-            } else {
-                const row = document.createElement('tr');
-                row.innerHTML = `<td colspan="6" style="padding: 10px; text-align: center; color: #666;">Нет данных для отображения</td>`;
-                tableBody.appendChild(row);
-            }
-        } catch (error) {
-            console.error('Ошибка загрузки пациентов:', error);
-            alert('Ошибка при загрузке данных');
-        }
-    }
-
-    // Вызов загрузки пациентов при старте страницы
-    window.onload = loadPatients;
-
-    // Функции для добавления пациента
-    function openAddModal() {
-        document.getElementById('addModal').style.display = 'block';
-    }
-
-    function closeAddModal() {
-        document.getElementById('addModal').style.display = 'none';
-    }
-
-    async function addPatient() {
-        const firstName = document.getElementById('addFirstName').value;
-        const lastName = document.getElementById('addLastName').value;
-        const birthDate = document.getElementById('addBirthDate').value;
-        const gender = document.getElementById('addGender').value;
-        const contactPhone = document.getElementById('addContactPhone').value;
-
-        const data = { first_name: firstName, last_name: lastName, birth_date: birthDate, gender, contact_phone: contactPhone };
-
-        try {
-            const response = await fetch('/patients/add_patients', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data),
-            });
-
-            if (response.ok) {
-                alert('Пациент успешно добавлен');
-                loadPatients(); // Перезагружаем список пациентов
-                closeAddModal(); // Закрываем окно
-            } else {
-                alert('Ошибка при добавлении пациента');
-            }
-        } catch (error) {
-            console.error('Ошибка добавления пациента:', error);
-            alert('Ошибка при добавлении пациента');
-        }
-    }
-
-    // Функции для редактирования пациента
-    function openEditModal(id, firstName, lastName, birthDate, gender, contactPhone) {
-        document.getElementById('editPatientId').value = id;
-        document.getElementById('editFirstName').value = firstName;
-        document.getElementById('editLastName').value = lastName;
-        document.getElementById('editBirthDate').value = birthDate;
-        document.getElementById('editGender').value = gender;
-        document.getElementById('editContactPhone').value = contactPhone;
-        document.getElementById('editModal').style.display = 'block';
-    }
-
-    function closeEditModal() {
-        document.getElementById('editModal').style.display = 'none';
-    }
-
-    async function updatePatient() {
-        const id = document.getElementById('editPatientId').value;
-        const firstName = document.getElementById('editFirstName').value;
-        const lastName = document.getElementById('editLastName').value;
-        const birthDate = document.getElementById('editBirthDate').value;
-        const gender = document.getElementById('editGender').value;
-        const contactPhone = document.getElementById('editContactPhone').value;
-
-        const data = { first_name: firstName, last_name: lastName, birth_date: birthDate, gender, contact_phone: contactPhone };
-
-        try {
-            const response = await fetch(`/patients/edit/${id}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data),
-            });
-
-            if (response.ok) {
-                alert('Данные пациента обновлены');
-                loadPatients(); // Перезагружаем список пациентов
-                closeEditModal(); // Закрываем окно
-            } else {
-                alert('Ошибка при обновлении пациента');
-            }
-        } catch (error) {
-            console.error('Ошибка обновления пациента:', error);
-            alert('Ошибка при обновлении пациента');
-        }
-    }
-
-    // Функция для удаления пациента
-    async function deletePatient(id) {
-        if (confirm('Вы уверены, что хотите удалить этого пациента?')) {
             try {
-                const response = await fetch(`/patients/remove/${id}`, {
-                    method: 'DELETE',
+                const response = await fetch(`/patients/all?offset=${offset}&limit=${limit}`);
+                const patients = await response.json();
+                const tableBody = document.querySelector('#patientsTable tbody');
+                tableBody.innerHTML = ''; // Очистить текущую таблицу
+
+                if (patients.length > 0) {
+                    patients.forEach(patient => {
+                        const row = document.createElement('tr');
+                        row.id = `patient-row-${patient.id}`;
+                        row.innerHTML = `
+                            <td>${patient.last_name}</td>
+                            <td>${patient.first_name}</td>
+                            <td>${patient.birth_date}</td>
+                            <td>${patient.gender}</td>
+                            <td>${patient.contact_phone}</td>
+                            <td class="actions">
+                                <button onclick="openEditModal('${patient.id}', '${patient.first_name}', '${patient.last_name}', '${patient.birth_date}', '${patient.gender}', '${patient.contact_phone}')"
+                                        class="btn btn-primary">Изменить</button>
+                                <button onclick="deletePatient('${patient.id}')" class="btn btn-danger">Удалить</button>
+                            </td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                } else {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td colspan="6" class="no-data">Нет данных для отображения</td>`;
+                    tableBody.appendChild(row);
+                }
+                updatePagination();
+            } catch (error) {
+                console.error('Ошибка загрузки пациентов:', error);
+                alert('Ошибка при загрузке данных');
+            }
+        }
+
+        async function searchPatients() {
+            const firstName = document.getElementById('first_name').value;
+            const lastName = document.getElementById('last_name').value;
+            const birthDate = document.getElementById('birth_date').value;
+            const gender = document.getElementById('gender').value;
+            const contactPhone = document.getElementById('contact_phone').value;
+            const offset = document.getElementById('offset').value;
+            const limit = document.getElementById('limit').value;
+
+            // Создаем объект с параметрами запроса
+            const params = new URLSearchParams();
+            if (firstName) params.append('first_name', firstName);
+            if (lastName) params.append('last_name', lastName);
+            if (birthDate) params.append('birth_date', birthDate);
+            if (gender) params.append('gender', gender);
+            if (contactPhone) params.append('contact_phone', contactPhone);
+            params.append('offset', offset);
+            params.append('limit', limit);
+
+            try {
+                // Отправляем запрос с параметрами
+                const response = await fetch(`/patients/search/?${params.toString()}`);
+                const patients = await response.json();
+                const tableBody = document.querySelector('#patientsTable tbody');
+                tableBody.innerHTML = ''; // Очистить текущую таблицу
+
+                if (patients.length > 0) {
+                    patients.forEach(patient => {
+                        const row = document.createElement('tr');
+                        row.id = `patient-row-${patient.id}`;
+                        row.innerHTML = `
+                            <td>${patient.last_name}</td>
+                            <td>${patient.first_name}</td>
+                            <td>${patient.birth_date}</td>
+                            <td>${patient.gender}</td>
+                            <td>${patient.contact_phone}</td>
+                            <td class="actions">
+                                <button onclick="openEditModal('${patient.id}', '${patient.first_name}', '${patient.last_name}', '${patient.birth_date}', '${patient.gender}', '${patient.contact_phone}')"
+                                        class="btn btn-primary">Изменить</button>
+                                <button onclick="deletePatient('${patient.id}')" class="btn btn-danger">Удалить</button>
+                            </td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                } else {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td colspan="6" class="no-data">Нет данных для отображения</td>`;
+                    tableBody.appendChild(row);
+                }
+            } catch (error) {
+                console.error('Ошибка поиска пациентов:', error);
+                alert('Ошибка при поиске пациентов');
+            }
+        }
+
+        // Вызов загрузки пациентов при старте страницы
+        window.onload = loadPatients;
+
+        // Функции для добавления пациента
+        function openAddModal() {
+            document.getElementById('addModal').style.display = 'block';
+        }
+
+        function closeAddModal() {
+            document.getElementById('addModal').style.display = 'none';
+        }
+
+        async function addPatient() {
+            const firstName = document.getElementById('addFirstName').value;
+            const lastName = document.getElementById('addLastName').value;
+            const birthDate = document.getElementById('addBirthDate').value;
+            const gender = document.getElementById('addGender').value;
+            const contactPhone = document.getElementById('addContactPhone').value;
+
+            const data = { first_name: firstName, last_name: lastName, birth_date: birthDate, gender, contact_phone: contactPhone };
+
+            try {
+                const response = await fetch('/patients/add_patient', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data),
                 });
 
                 if (response.ok) {
-                    alert('Пациент успешно удален');
+                    alert('Пациент успешно добавлен');
                     loadPatients(); // Перезагружаем список пациентов
+                    closeAddModal(); // Закрываем модальное окно
                 } else {
-                    alert('Ошибка при удалении пациента');
+                    alert('Ошибка при добавлении пациента');
                 }
             } catch (error) {
-                console.error('Ошибка удаления пациента:', error);
-                alert('Ошибка при удалении пациента');
+                console.error('Ошибка при добавлении пациента:', error);
+                alert('Ошибка при добавлении пациента');
             }
         }
+
+        // Функции для редактирования пациента
+        function openEditModal(id, firstName, lastName, birthDate, gender, contactPhone) {
+            document.getElementById('editPatientId').value = id;
+            document.getElementById('editFirstName').value = firstName;
+            document.getElementById('editLastName').value = lastName;
+            document.getElementById('editBirthDate').value = birthDate;
+            document.getElementById('editGender').value = gender;
+            document.getElementById('editContactPhone').value = contactPhone;
+            document.getElementById('editModal').style.display = 'block';
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        async function updatePatient() {
+            const id = document.getElementById('editPatientId').value;
+            const firstName = document.getElementById('editFirstName').value;
+            const lastName = document.getElementById('editLastName').value;
+            const birthDate = document.getElementById('editBirthDate').value;
+            const gender = document.getElementById('editGender').value;
+            const contactPhone = document.getElementById('editContactPhone').value;
+
+            const data = { first_name: firstName, last_name: lastName, birth_date: birthDate, gender, contact_phone: contactPhone };
+
+            try {
+                const response = await fetch(`/patients/${id}/edit`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data),
+                });
+
+                if (response.ok) {
+                    alert('Данные пациента обновлены');
+                    loadPatients(); // Перезагружаем список пациентов
+                    closeEditModal(); // Закрываем модальное окно
+                } else {
+                    alert('Ошибка при обновлении данных пациента');
+                }
+            } catch (error) {
+                console.error('Ошибка при обновлении данных пациента:', error);
+                alert('Ошибка при обновлении данных пациента');
+            }
+        }
+
+        // Функция для удаления пациента
+        async function deletePatient(id) {
+            const isConfirmed = confirm('Вы уверены, что хотите удалить пациента?');
+
+            if (isConfirmed) {
+                try {
+                    const response = await fetch(`/patients/${id}/delete`, { method: 'DELETE' });
+
+                    if (response.ok) {
+                        alert('Пациент успешно удален');
+                        loadPatients(); // Перезагружаем список пациентов
+                    } else {
+                        alert('Ошибка при удалении пациента');
+                    }
+                } catch (error) {
+                    console.error('Ошибка при удалении пациента:', error);
+                    alert('Ошибка при удалении пациента');
+                }
+            }
+        }
+        function updatePagination() {
+    document.getElementById('pageInfo').innerText = `Страница ${currentPage}`;
+    const prevPageBtn = document.getElementById('prevPageBtn');
+    const nextPageBtn = document.getElementById('nextPageBtn');
+
+    prevPageBtn.disabled = currentPage === 1; // Блокируем кнопку "Предыдущая страница" на первой странице
+    nextPageBtn.disabled = false; // Вы можете добавить дополнительную логику для блокировки кнопки "Следующая страница", если достигнут конец списка
+}
+
+    // Функция для изменения страницы
+    function changePage(direction) {
+        if (direction === 'prev' && currentPage > 1) {
+            currentPage--;
+            limit -= 10;
+            offset -= 10;
+        } else if (direction === 'next') {
+            currentPage++;
+            limit += 10;
+            offset += 10;
+        }
+        loadPatients(); // Загружаем продукты для новой страницы
     }
-</script>
+    </script>
+</body>
+</html>
 {% endblock %}

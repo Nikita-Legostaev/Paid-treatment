@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block content %}
+<!doctype html>
+<html lang="ru">
+<head>
+    
+    <!-- Подключаем библиотеку Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7fc;
+        }
+        h1 {
+            text-align: center;
+            padding: 20px;
+            color: #333;
+        }
+        #chart-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .chart-box {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            background-color: #fff;
+        }
+    </style>
+</head>
+<body>
+   
+
+    <div id="chart-container">
+        <div class="chart-box">
+            <!-- Контейнер для диаграммы -->
+            <canvas id="countsBarChart" width="400" height="400"></canvas>
+        </div>
+    </div>
+
+    <script>
+        // Данные для диаграммы
+        const countsData = {
+            labels: {{ counts_keys | tojson }},  // Метки (категории)
+            datasets: [{
+                label: 'Количество',  // Заголовок для графика
+                data: {{ counts_values | tojson }},  // Значения
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.6)',   // Цвет для каждой секции
+                    'rgba(54, 162, 235, 0.6)',   // Цвет для каждой секции
+                    'rgba(255, 206, 86, 0.6)',   // Цвет для каждой секции
+                    'rgba(75, 192, 192, 0.6)',   // Цвет для каждой секции
+                    'rgba(153, 102, 255, 0.6)'   // Цвет для каждой секции
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)'
+                ],
+                borderWidth: 1
+            }]
+        };
+
+        // Конфигурация диаграммы
+        const config = {
+            type: 'bar',  // Тип диаграммы (bar - столбчатая диаграмма)
+            data: countsData,
+            options: {
+                indexAxis: 'y',  // Горизонтальные столбцы
+                responsive: true,  // Адаптивность
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return tooltipItem.label + ': ' + tooltipItem.raw;  // Отображение значения при наведении
+                            }
+                        }
+                    },
+                    legend: {
+                        position: 'top',  // Позиция легенды
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,  // Начало шкалы с нуля
+                    },
+                },
+                animation: {
+                    duration: 1000,  // Время анимации
+                    easing: 'easeInOutBounce',  // Стиль анимации
+                }
+            }
+        };
+
+        // Рисуем диаграмму
+        const countsBarChart = new Chart(
+            document.getElementById('countsBarChart'),  // Канвас для рисования
+            config  // Конфигурация диаграммы
+        );
+    </script>
+</body>
+</html>
+{% endblock %}

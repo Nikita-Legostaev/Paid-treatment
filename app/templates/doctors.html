@@ -1,36 +1,31 @@
 {% extends "base.html" %}
 {% block content %}
-<div style="margin: 20px;">
-    <h2>Список врачей</h2>
+<div class="container">
+    <h2 class="header">Список врачей</h2>
     
     <!-- Панель управления для выбора диапазона -->
-    <div style="margin-bottom: 20px;">
-        <label>Показать с:</label>
-        <input type="number" id="offset" value="0" min="0" style="width: 80px; margin-right: 10px;">
-        <label>Количество на странице:</label>
-        <input type="number" id="limit" value="10" min="1" style="width: 80px; margin-right: 20px;">
-        <button onclick="loadDoctors()" 
-                style="padding: 5px 15px; background-color: #4CAF50; color: white; border: none; cursor: pointer;">
-            Применить
-        </button>
+    <div class="control-panel">
+        <label for="offset">Показать с:</label>
+        <input type="number" id="offset" value="0" min="0" class="input-field">
+        
+        <label for="limit">Количество на странице:</label>
+        <input type="number" id="limit" value="10" min="1" class="input-field">
+        
+        <button onclick="loadDoctors()" class="btn btn-primary">Применить</button>
     </div>
 
     <!-- Кнопка для добавления нового врача -->
-    <button 
-        onclick="openAddModal()" 
-        style="margin-bottom: 20px; padding: 10px 20px; background-color: #4CAF50; color: white; border: none; cursor: pointer;">
-        Добавить врача
-    </button>
+    <button onclick="openAddModal()" class="btn btn-success">Добавить врача</button>
 
     <!-- Таблица врачей -->
-    <table id="doctorsTable" style="width: 100%; border-collapse: collapse; text-align: left; font-family: Arial, sans-serif;">
+    <table id="doctorsTable" class="table">
         <thead>
-            <tr style="background-color: #f4f4f4; border-bottom: 2px solid #ddd;">
-                <th style="padding: 10px; border: 1px solid #ddd;">Фамилия</th>
-                <th style="padding: 10px; border: 1px solid #ddd;">Имя</th>
-                <th style="padding: 10px; border: 1px solid #ddd;">Специализация</th>
-                <th style="padding: 10px; border: 1px solid #ddd;">Контактный телефон</th>
-                <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">Действия</th>
+            <tr>
+                <th>Фамилия</th>
+                <th>Имя</th>
+                <th>Специализация</th>
+                <th>Контактный телефон</th>
+                <th class="actions">Действия</th>
             </tr>
         </thead>
         <tbody>
@@ -39,37 +34,37 @@
     </table>
 
     <!-- Модальное окно для добавления врача -->
-    <div id="addModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid #ddd; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);">
+    <div id="addModal" class="modal">
         <h3>Добавить нового врача</h3>
         <form id="addForm">
             <label>Имя:</label>
-            <input type="text" id="addFirstName" style="width: 100%; margin-bottom: 10px;">
+            <input type="text" id="addFirstName" class="input-field">
             <label>Фамилия:</label>
-            <input type="text" id="addLastName" style="width: 100%; margin-bottom: 10px;">
+            <input type="text" id="addLastName" class="input-field">
             <label>Специализация:</label>
-            <input type="text" id="addSpecialization" style="width: 100%; margin-bottom: 10px;">
+            <input type="text" id="addSpecialization" class="input-field">
             <label>Контактный телефон:</label>
-            <input type="text" id="addContactPhone" style="width: 100%; margin-bottom: 20px;">
-            <button type="button" onclick="addDoctor()" style="padding: 10px 20px; background-color: #4CAF50; color: white; border: none; cursor: pointer;">Сохранить</button>
-            <button type="button" onclick="closeAddModal()" style="padding: 10px 20px; margin-left: 10px; background-color: #f44336; color: white; border: none; cursor: pointer;">Отмена</button>
+            <input type="text" id="addContactPhone" class="input-field">
+            <button type="button" onclick="addDoctor()" class="btn btn-success">Сохранить</button>
+            <button type="button" onclick="closeAddModal()" class="btn btn-danger">Отмена</button>
         </form>
     </div>
 
     <!-- Модальное окно для редактирования данных врача -->
-    <div id="editModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid #ddd; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);">
+    <div id="editModal" class="modal">
         <h3>Изменить данные врача</h3>
         <form id="editForm">
             <input type="hidden" id="editDoctorId">
             <label>Имя:</label>
-            <input type="text" id="editFirstName" style="width: 100%; margin-bottom: 10px;">
+            <input type="text" id="editFirstName" class="input-field">
             <label>Фамилия:</label>
-            <input type="text" id="editLastName" style="width: 100%; margin-bottom: 10px;">
+            <input type="text" id="editLastName" class="input-field">
             <label>Специализация:</label>
-            <input type="text" id="editSpecialization" style="width: 100%; margin-bottom: 10px;">
+            <input type="text" id="editSpecialization" class="input-field">
             <label>Контактный телефон:</label>
-            <input type="text" id="editContactPhone" style="width: 100%; margin-bottom: 20px;">
-            <button type="button" onclick="updateDoctor()" style="padding: 10px 20px; background-color: #4CAF50; color: white; border: none; cursor: pointer;">Сохранить</button>
-            <button type="button" onclick="closeEditModal()" style="padding: 10px 20px; margin-left: 10px; background-color: #f44336; color: white; border: none; cursor: pointer;">Отмена</button>
+            <input type="text" id="editContactPhone" class="input-field">
+            <button type="button" onclick="updateDoctor()" class="btn btn-success">Сохранить</button>
+            <button type="button" onclick="closeEditModal()" class="btn btn-danger">Отмена</button>
         </form>
     </div>
 </div>
@@ -91,28 +86,21 @@
                     const row = document.createElement('tr');
                     row.id = `doctor-row-${doctor.id}`;
                     row.innerHTML = `
-                        <td style="padding: 10px; border: 1px solid #ddd;">${doctor.last_name}</td>
-                        <td style="padding: 10px; border: 1px solid #ddd;">${doctor.first_name}</td>
-                        <td style="padding: 10px; border: 1px solid #ddd;">${doctor.specialization}</td>
-                        <td style="padding: 10px; border: 1px solid #ddd;">${doctor.contact_phone}</td>
-                        <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">
-                            <button 
-                                style="margin-right: 5px; padding: 5px 10px; background-color: #4CAF50; color: white; border: none; cursor: pointer;"
-                                onclick="openEditModal('${doctor.id}', '${doctor.first_name}', '${doctor.last_name}', '${doctor.specialization}', '${doctor.contact_phone}')">
-                                Изменить
-                            </button>
-                            <button 
-                                style="padding: 5px 10px; background-color: #f44336; color: white; border: none; cursor: pointer;" 
-                                onclick="deleteDoctor('${doctor.id}')">
-                                Удалить
-                            </button>
+                        <td>${doctor.last_name}</td>
+                        <td>${doctor.first_name}</td>
+                        <td>${doctor.specialization}</td>
+                        <td>${doctor.contact_phone}</td>
+                        <td class="actions">
+                            <button onclick="openEditModal('${doctor.id}', '${doctor.first_name}', '${doctor.last_name}', '${doctor.specialization}', '${doctor.contact_phone}')"
+                                    class="btn btn-primary">Изменить</button>
+                            <button onclick="deleteDoctor('${doctor.id}')" class="btn btn-danger">Удалить</button>
                         </td>
                     `;
                     tableBody.appendChild(row);
                 });
             } else {
                 const row = document.createElement('tr');
-                row.innerHTML = `<td colspan="5" style="padding: 10px; text-align: center; color: #666;">Нет данных для отображения</td>`;
+                row.innerHTML = `<td colspan="5" class="no-data">Нет данных для отображения</td>`;
                 tableBody.appendChild(row);
             }
         } catch (error) {
@@ -225,4 +213,85 @@
         }
     }
 </script>
+
+<style>
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .header {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+    .control-panel {
+        margin-bottom: 20px;
+    }
+    .input-field {
+        padding: 5px;
+        margin: 5px;
+        width: 150px;
+    }
+    .btn {
+        padding: 8px 16px;
+        font-size: 14px;
+        margin: 5px;
+        border: none;
+        cursor: pointer;
+    }
+    .btn-primary {
+        background-color: #ff8c00;
+        color: white;
+    }
+    .btn-success {
+        background-color: #ff7f00;
+        color: white;
+    }
+    .btn-danger {
+        background-color: #e94f37;
+        color: white;
+    }
+    .btn:hover {
+        opacity: 0.8;
+    }
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .table th, .table td {
+        padding: 8px;
+        border: 1px solid #ddd;
+        text-align: center;
+    }
+    .actions button {
+        margin: 0 5px;
+    }
+    .no-data {
+        text-align: center;
+        font-size: 16px;
+        color: #888;
+    }
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        padding: 20px;
+        justify-content: center;
+        align-items: center;
+    }
+    .modal form {
+        background: white;
+        padding: 20px;
+        border-radius: 5px;
+    }
+    .modal label {
+        display: block;
+        margin-bottom: 5px;
+    }
+</style>
 {% endblock %}
